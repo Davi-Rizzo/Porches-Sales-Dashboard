@@ -1,0 +1,517 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Painel de Vendas Porsche</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: cabeçalho fino, faixa de filtros fixa, KPIs separados por linhas finas, três seções de análise em grade de 12 colunas. Dark-first, sobrio, muito espaço. */
+:root{
+  --bg:#0E1418; --bg-glow:#17252d; --surface:#121a20; --surface-2:#18222a;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.24);
+  --fg:#F3F5F6; --fg-2:#B9C2C8; --muted:#82909A;
+  --accent:#E4223A; --accent-ink:#fff; --bar:#51616c; --track:rgba(255,255,255,.07);
+  --s1:#E4223A; --s2:#CDAE7C; --s3:#6F9AB8; --s4:#8FA99B; --s5:#9A86B0; --s6:#5E6B74;
+  --warn:#D9A441;
+  --f-display:'Archivo','Helvetica Neue',Arial,sans-serif;
+  --f-body:'Inter','Helvetica Neue',Arial,sans-serif;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]){
+    --bg:#F4F5F6; --bg-glow:#E6EBEE; --surface:#FFFFFF; --surface-2:#EEF1F3;
+    --line:rgba(14,20,24,.12); --line-strong:rgba(14,20,24,.28);
+    --fg:#0E1418; --fg-2:#3F4C55; --muted:#6B7882;
+    --accent:#C4122B; --accent-ink:#fff; --bar:#8E9BA4; --track:rgba(14,20,24,.07);
+    --s1:#C4122B; --s2:#A5803F; --s3:#3F6F8F; --s4:#5E8573; --s5:#765F93; --s6:#8B969D;
+    --warn:#9A6B0C; color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F4F5F6; --bg-glow:#E6EBEE; --surface:#FFFFFF; --surface-2:#EEF1F3;
+  --line:rgba(14,20,24,.12); --line-strong:rgba(14,20,24,.28);
+  --fg:#0E1418; --fg-2:#3F4C55; --muted:#6B7882;
+  --accent:#C4122B; --accent-ink:#fff; --bar:#8E9BA4; --track:rgba(14,20,24,.07);
+  --s1:#C4122B; --s2:#A5803F; --s3:#3F6F8F; --s4:#5E8573; --s5:#765F93; --s6:#8B969D;
+  --warn:#9A6B0C; color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 14px/1.55 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0;-webkit-font-smoothing:antialiased;overflow-x:clip}
+.wrap{max-width:1240px;margin:0 auto}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+/* topo */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0 0;
+  font:500 11px/1 var(--f-body);letter-spacing:.22em;text-transform:uppercase;color:var(--fg-2)}
+.top .mark{display:flex;align-items:center;gap:12px}
+.top .mark i{display:block;width:28px;height:2px;background:var(--accent)}
+.top .meta{color:var(--muted);letter-spacing:.14em}
+.hero{position:relative;padding:44px 0 34px;border-bottom:1px solid var(--line)}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 120% at 85% 0%,var(--bg-glow),transparent 70%);z-index:-1}
+.hero h1{margin:0;font:300 clamp(30px,5.2vw,58px)/1.05 var(--f-display);letter-spacing:-.02em;max-width:18ch;text-wrap:balance}
+.hero p{margin:18px 0 0;max-width:62ch;color:var(--fg-2);font-size:15px}
+
+/* filtros */
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:14px 0}
+.fgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) minmax(0,1.5fr) auto;gap:14px 18px;align-items:end}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0;position:relative}
+.field>span,.lab{font:500 10.5px/1 var(--f-body);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.field select,.field input{width:100%;appearance:none;-webkit-appearance:none;background:transparent;border:0;border-bottom:1px solid var(--line-strong);
+  padding:7px 22px 7px 0;border-radius:0;color:var(--fg);font-size:14px;min-height:34px}
+.field select option{background:var(--surface);color:var(--fg)}
+.field.sel::after{content:"";position:absolute;right:3px;bottom:13px;width:6px;height:6px;border-right:1.5px solid var(--fg-2);border-bottom:1.5px solid var(--fg-2);transform:rotate(45deg);pointer-events:none}
+.field select:hover,.field input:hover{border-bottom-color:var(--fg)}
+.range{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.range input{padding-right:0}
+.btn{background:transparent;border:1px solid var(--line-strong);color:var(--fg);padding:9px 16px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px;min-height:36px;transition:background .2s,border-color .2s}
+.btn:hover{border-color:var(--fg)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+.chip{background:transparent;border:1px solid var(--line);color:var(--fg-2);padding:4px 12px;border-radius:99px;font-size:12px;cursor:pointer}
+.chip:hover{border-color:var(--fg-2);color:var(--fg)}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-bottom:1px solid var(--line)}
+.kpi{padding:30px 22px 28px 0;min-width:0}
+.kpi+.kpi{padding-left:22px;border-left:1px solid var(--line)}
+.kpi .v{font:300 clamp(24px,2.6vw,34px)/1.1 var(--f-display);letter-spacing:-.02em;margin-top:12px;white-space:nowrap}
+.kpi .v.t{font-size:clamp(19px,2vw,25px);line-height:1.2;font-weight:400;white-space:normal;overflow-wrap:anywhere}
+.kpi .s{margin-top:8px;color:var(--muted);font-size:12.5px}
+
+/* seções */
+section{padding:56px 0 8px}
+.sh{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 24px;align-items:end;margin-bottom:28px}
+.sh .eyebrow{font:500 11px/1 var(--f-body);letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.sh h2{margin:0;font:300 clamp(24px,3vw,34px)/1.15 var(--f-display);letter-spacing:-.015em;text-wrap:balance}
+.sh .lead{margin:10px 0 0;color:var(--fg-2);max-width:68ch}
+.cols{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:40px 56px}
+.c5{grid-column:span 5}.c7{grid-column:span 7}.c6{grid-column:span 6}.c12{grid-column:span 12}
+.col-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line-strong);margin-bottom:6px}
+.col-h h3{margin:0;font:500 13px/1.3 var(--f-body);letter-spacing:.04em}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:2px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:6px 12px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-2);cursor:pointer}
+.seg button+button{border-left:1px solid var(--line-strong)}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+
+/* barras */
+.bars{display:flex;flex-direction:column}
+.brow{display:grid;grid-template-columns:minmax(0,11.5em) minmax(0,1fr) 5.2em;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid var(--line);background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;cursor:pointer}
+.brow:hover .lbl{color:var(--fg)}
+.brow .lbl{color:var(--fg-2);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.brow .tr{height:6px;background:var(--track);position:relative}
+.brow .fl{position:absolute;inset:0 auto 0 0;background:var(--bar);transition:width .5s cubic-bezier(.2,.7,.2,1)}
+.brow.lead .fl{background:var(--accent)}
+.brow.lead .lbl{color:var(--fg)}
+.brow.sel .lbl{color:var(--fg);font-weight:600}
+.brow .val{text-align:right;font-size:13px;color:var(--fg)}
+.brow .val small{color:var(--muted);font-size:11.5px;margin-left:4px}
+
+/* tabela de praças */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:520px}
+th{font:500 10.5px/1 var(--f-body);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-align:left;padding:12px 10px 10px 0;border-bottom:1px solid var(--line)}
+th.r,td.r{text-align:right}
+td{padding:11px 10px 11px 0;border-bottom:1px solid var(--line);vertical-align:top;font-size:13px}
+td.loc{font-weight:600;white-space:nowrap}
+td.rk{color:var(--muted);width:2.4em}
+.mchip{display:inline-block;margin:0 6px 4px 0;padding:2px 9px;border:1px solid var(--line-strong);border-radius:99px;font-size:12px;color:var(--fg)}
+.mchip.first{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.more{margin-top:14px}
+
+/* pagamento empilhado */
+.headline{font:300 clamp(18px,2vw,22px)/1.35 var(--f-display);margin:0 0 22px;max-width:46ch}
+.headline b{font-weight:600}
+.sw{overflow-x:auto}
+.stack{display:flex;align-items:flex-end;gap:6px;height:230px;padding-top:22px;border-bottom:1px solid var(--line-strong)}
+.qcol{flex:1 1 0;display:flex;flex-direction:column;justify-content:flex-end;height:100%;min-width:0}
+.qcol .tot{text-align:center;font-size:11.5px;color:var(--fg-2);margin-bottom:5px}
+.qcol .seg1{width:100%;min-height:2px;border-top:1px solid var(--bg)}
+.qlabels{display:flex;gap:6px;padding-top:8px}
+.qlabels span{flex:1 1 0;min-width:0;text-align:center;font-size:10.5px;color:var(--muted);white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:18px;font-size:12px;color:var(--fg-2)}
+.legend i{display:inline-block;width:9px;height:9px;margin-right:7px;vertical-align:-1px}
+.note{margin-top:14px;font-size:12px;color:var(--muted);max-width:60ch}
+
+/* insights */
+.ins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid var(--line-strong)}
+.in{padding:24px 26px 26px 0;border-bottom:1px solid var(--line);min-width:0}
+.in:nth-child(3n+2),.in:nth-child(3n){padding-left:26px;border-left:1px solid var(--line)}
+.in .k{font:500 10.5px/1 var(--f-body);letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.in .t{font:300 21px/1.25 var(--f-display);margin:14px 0 10px;letter-spacing:-.01em}
+.in .t b{font-weight:600}
+.in p{margin:0;color:var(--fg-2);font-size:13px}
+.explore{margin-top:44px;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:36px 56px;align-items:start}
+.explore h3{margin:0 0 6px;font:300 24px/1.2 var(--f-display)}
+.explore .sub{color:var(--fg-2);margin:0 0 20px;max-width:44ch}
+.sale{display:grid;grid-template-columns:1fr auto;gap:4px 16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.sale .m{font:500 16px/1.3 var(--f-display)}
+.sale .d{color:var(--muted);font-size:12.5px}
+.sale .p{text-align:right;font-size:15px}
+.ctx{margin-top:18px;padding:14px 16px;background:var(--surface-2);font-size:13px;color:var(--fg-2)}
+.empty{padding:36px 0;color:var(--muted)}
+footer{margin-top:64px;padding:28px 0 56px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;display:grid;gap:8px}
+footer b{color:var(--fg-2);font-weight:500}
+.warn{color:var(--warn)}
+
+@media (max-width:980px){
+  .fgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fgrid .range{grid-column:1/-1}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi:nth-child(odd){padding-left:0;border-left:0}
+  .kpi:nth-child(n+3){border-top:1px solid var(--line)}
+  .kpi:nth-child(5){grid-column:1/-1;border-left:0;padding-left:0}
+  .cols{grid-template-columns:minmax(0,1fr);gap:40px}
+  .c5,.c7,.c6{grid-column:auto}
+  .ins{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .in:nth-child(n){padding-left:0;border-left:0}
+  .in:nth-child(2n){padding-left:26px;border-left:1px solid var(--line)}
+  .explore{grid-template-columns:1fr}
+  .sh{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .hero{padding-top:30px}
+  .filters{position:static}
+  .brow{grid-template-columns:minmax(0,8em) minmax(0,1fr) 4.4em;gap:10px}
+  .ins{grid-template-columns:1fr}
+  .in:nth-child(n){padding-left:0;border-left:0}
+  .kpi{padding-right:12px}.kpi+.kpi{padding-left:14px}
+  .cols{gap:36px}
+}
+@media (prefers-reduced-motion:reduce){.brow .fl{transition:none}html{scroll-behavior:auto}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="mark"><i></i>Painel de vendas</div>
+    <div class="meta" id="meta"></div>
+  </div>
+
+  <header class="hero">
+    <h1>Modelos, praças e pagamentos em uma só leitura</h1>
+    <p id="heroSub"></p>
+  </header>
+
+  <div class="filters" role="search" aria-label="Filtros">
+    <div class="fgrid">
+      <label class="field sel"><span>Modelo</span><select id="fModel"></select></label>
+      <label class="field sel"><span>Ano do modelo</span><select id="fYear"></select></label>
+      <label class="field sel"><span>Cidade</span><select id="fCity"></select></label>
+      <label class="field sel"><span>Pagamento</span><select id="fPay"></select></label>
+      <div class="range">
+        <label class="field"><span>Período · de</span><input type="date" id="fFrom"></label>
+        <label class="field"><span>Período · até</span><input type="date" id="fTo"></label>
+      </div>
+      <button class="btn" id="clear" type="button">Limpar</button>
+    </div>
+    <div class="chips" id="yearChips" aria-label="Atalhos de período"></div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section id="modelos">
+    <div class="sh">
+      <div>
+        <div class="eyebrow">Modelos e praças</div>
+        <h2>Quais modelos mais saem em cada cidade ou estado</h2>
+        <p class="lead" id="leadModels"></p>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="c5">
+        <div class="col-h"><h3>Modelos mais vendidos</h3><span class="lab">Clique para filtrar</span></div>
+        <div class="bars" id="modelBars"></div>
+      </div>
+      <div class="c7">
+        <div class="col-h">
+          <h3>Modelo líder por praça</h3>
+          <div class="seg" role="group" aria-label="Agrupar por">
+            <button type="button" id="gState" aria-pressed="true">Estado</button>
+            <button type="button" id="gCity" aria-pressed="false">Cidade</button>
+          </div>
+        </div>
+        <div class="tw"><table><thead><tr><th></th><th id="thLoc">Estado</th><th class="r">Vendas</th><th>Modelos vendidos</th><th class="r">Receita</th></tr></thead><tbody id="locBody"></tbody></table></div>
+        <button class="btn more" id="locMore" type="button" hidden></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="pagamento">
+    <div class="sh">
+      <div>
+        <div class="eyebrow">Pagamento</div>
+        <h2>Qual método de pagamento mais saiu no período</h2>
+      </div>
+    </div>
+    <p class="headline" id="payHead"></p>
+    <div class="cols">
+      <div class="c5">
+        <div class="col-h">
+          <h3>Participação por método</h3>
+          <div class="seg" role="group" aria-label="Medida">
+            <button type="button" id="mCount" aria-pressed="true">Vendas</button>
+            <button type="button" id="mRev" aria-pressed="false">Receita</button>
+          </div>
+        </div>
+        <div class="bars" id="payBars"></div>
+      </div>
+      <div class="c7">
+        <div class="col-h"><h3>Vendas por trimestre e método</h3><span class="lab">Unidades</span></div>
+        <div class="sw"><div id="swi"><div class="stack" id="stack"></div>
+        <div class="qlabels" id="qlabels"></div></div></div>
+        <div class="legend" id="legend"></div>
+        <p class="note" id="payNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="insights">
+    <div class="sh">
+      <div>
+        <div class="eyebrow">Insights</div>
+        <h2>O que os dados dizem sobre os carros mais populares</h2>
+        <p class="lead">Leituras calculadas a partir do recorte atual. Mudam junto com os filtros.</p>
+      </div>
+    </div>
+    <div class="ins" id="insights-grid"></div>
+
+    <div class="explore">
+      <div>
+        <h3>Explorar uma cidade</h3>
+        <p class="sub">Escolha uma cidade para ver o que foi vendido ali e como isso se compara ao estado e ao total.</p>
+        <label class="field sel"><span>Cidade</span><select id="xCity"></select></label>
+      </div>
+      <div id="xOut" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div id="quality"></div>
+    <div>Valores em dólares americanos. Base: planilha tratada pelas regras do schema de sanitização.</div>
+  </footer>
+</div>
+
+<script>
+const RAW = [[6,"INVALID","718 Cayman",2022,79500,9800,"Credit Card","Boston","MA","Delivered"],[7,"2024-03-14","911 Turbo S",2024,235000,1200,"Wire Transfer","Seattle","WA","Delivered"],[8,"2024-04-18","Cayenne Coupe",2023,112750,6400,"Financing","Austin","TX","In Transit"],[9,"INVALID","Macan S",2021,68900,28,"Cash","Denver","CO","Pending"],[10,"2024-05-22","Taycan 4S",2024,121000,0,"Bank Transfer","Los Angeles","CA","Delivered"],[11,"2024-08-06","Panamera 4",2023,104500,14500,"Credit Card","Miami","FL","Cancelled"],[12,"2024-07-11","911 Carrera S",2020,96300,41000,"Lease","New York","NY","Delivered"],[13,"INVALID","Cayenne E-Hybrid",2022,89750,11744,"Wire Transfer","San Diego","CA","Pending Approval"],[14,"2024-08-19","718 Boxster",2021,73500,22300,"Debit Card","Chicago","IL","Shipped"],[15,"2024-09-02","Macan GTS",2024,95000,3500,"Financing","Phoenix","AZ","In Transit"],[16,"2024-09-17","Taycan Turbo",2023,153200.5,11,"ACH Payment","Dallas","TX","Delivered"],[17,"INVALID","911 GT3",2024,241000,750,"Wire Transfer","Las Vegas","NV","Pending"],[18,"2024-05-11","Panamera Turbo S",2022,132000,19250,"Cash","San Jose","CA","Delivered"],[19,"2024-12-12","Cayenne Turbo GT",2024,188000,2100,"Crypto Payment","Houston","TX","Awaiting Delivery"],[20,"2024-12-25","911 Carrera Cabriolet",2023,127800,12000,"Credit Card","Atlanta","GA","Delivered"],[21,"2025-01-06","Macan",2021,58900,33700,"Bank Transfer","Orlando","FL","Pending"],[22,"INVALID","718 Spyder RS",2024,164000,900,"Financing","Portland","OR","In Transit"],[23,"2025-02-14","Taycan Cross Turismo",2023,118500,7800,"Wire Transfer","Charlotte","NC","Delivered"],[24,"INVALID","Cayenne S",2022,91300,16000,"Credit Card","Nashville","TN","Pending"],[25,"2025-03-21","911 Targa 4S",2024,158750,2500,"Lease","Minneapolis","MN","Delivered"],[26,"2025-03-28","Panamera",2020,72000,49000,"Bank Transfer","Philadelphia","PA","Cancelled"],[27,"2025-04-09","Macan Electric",2025,86500,0,"Wire Transfer","San Antonio","TX","Delivered"],[28,"INVALID","911 Dakar",2024,270000,1050,"Cash","Salt Lake City","UT","Awaiting Pickup"],[29,"2025-05-12","Taycan GTS",2023,139000,6250,"Financing","Raleigh","NC","In Transit"],[30,"2025-06-18","Cayenne",2021,76800,38400,"Credit Card","Detroit","MI","Delivered"],[31,"INVALID","718 Cayman GT4 RS",2024,173600,400,"Wire Transfer","Columbus","OH","Pending"],[32,"2025-07-07","911 Carrera GTS",2022,119900,13600,"Cash","Indianapolis","IN","Delivered"],[33,"2025-07-22","Panamera 4 E-Hybrid",2023,109250,8900,"Lease","Fort Worth","TX","In Transit"],[34,"2025-08-14","Macan T",2022,82000,21750,"Wire Transfer","Jacksonville","FL","Delivered"],[35,"2025-09-01","Taycan Turbo S",2025,214000,0,"Crypto Payment","San Diego","CA","Pending Review"],[36,"INVALID","911 Carrera",2024,124500,4800,"Credit Card","Tampa","FL","Delivered"],[37,"2025-09-18","Cayenne S",2023,98200,12200,"Bank Transfer","Sacramento","CA","Pending"],[38,"2025-10-04","Macan",2022,67500,24100,"Financing","Cleveland","OH","Delivered"],[39,"2025-10-12","Taycan",2025,116900,0,"Wire Transfer","Milwaukee","WI","In Transit"],[40,"2025-10-29","Panamera 4S",2024,112000,10,"Cash","Kansas City","MO","Delivered"],[41,"2025-02-11","718 Boxster",2021,74000,31000,"Debit Card","Omaha","NE","Cancelled"],[42,"2025-11-16","911 Turbo",2024,198300,2400,"Wire Transfer","Albuquerque","NM","Awaiting Delivery"],[43,"INVALID","Cayenne Coupe",2023,103750,6773,"Wire Transfer","Tucson","AZ","Pending Approval"],[44,"INVALID","Macan GTS",2024,93600,5800,"Financing","Fresno","CA","Shipped"],[45,"2025-12-07","Taycan 4S",2025,129000,0,"ACH Payment","Virginia Beach","VA","In Transit"],[46,"2025-12-22","Panamera Turbo",2022,136000,18400,"Credit Card","Colorado Springs","CO","Delivered"],[47,"INVALID","911 GT3 RS",2024,286500,700,"Wire Transfer","Arlington","TX","Pending"],[48,"2026-01-08","Cayenne E-Hybrid",2023,92800,15000,"Lease","Bakersfield","CA","Delivered"],[49,"2026-01-15","Macan T",2022,72400,19750,"Cash","Mesa","AZ","Awaiting Pickup"],[50,"2026-01-28","Taycan Turbo",2025,158500,3200,"Crypto Payment","Atlanta","GA","Delivered"],[51,"2026-02-03","718 Cayman",2021,69900,27600,"Bank Transfer","Long Beach","CA","Pending"],[52,"INVALID","911 Targa 4",2024,141250,2100,"Financing","Oakland","CA","In Transit"],[53,"2026-02-19","Panamera",2020,71500,52000,"Wire Transfer","Tulsa","OK","Delivered"],[54,"2026-02-25","Cayenne Turbo",2023,146800,11300,"Credit Card","Wichita","KS","Pending"],[55,"2026-03-01","Macan Electric",2025,89700,0,"Lease","New Orleans","LA","Delivered"],[56,"2026-03-14","911 Carrera S",2022,104600,15900,"Bank Transfer","Honolulu","HI","Cancelled"],[57,"INVALID","Taycan GTS",2024,142000,6600,"Wire Transfer","Anaheim","CA","Delivered"],[58,"2026-04-08","Cayenne",2021,78400,40250,"Cash","Henderson","NV","Awaiting Review"],[59,"INVALID","718 Spyder RS",2025,169000,850,"Financing","Lexington","KY","In Transit"],[60,"2026-04-21","911 Dakar",2024,268900,1400,"Credit Card","Riverside","CA","Delivered"],[61,"2026-04-29","Panamera 4",2023,101300,12700,"Wire Transfer","Corpus Christi","TX","Pending"],[62,"2026-05-05","Macan S",2021,66750,29800,"Cash","St. Louis","MO","Delivered"],[63,"2026-05-14","Taycan Cross Turismo",2024,127900,7500,"Lease","Pittsburgh","PA","In Transit"],[64,"2026-05-23","Cayenne Turbo GT",2025,200000,1950,"Wire Transfer","Cincinnati","OH","Delivered"],[65,"2026-06-02","911 Carrera Cabriolet",2023,132000,8800,"Crypto Payment","Anchorage","AK","Pending Review"],[66,"2026-06-15","718 Cayman GT4 RS",2024,176400,600,"Credit Card","Plano","TX","Delivered"],[67,"INVALID","Panamera 4 E-Hybrid",2022,108500,16200,"Bank Transfer","Newark","NJ","Cancelled"],[68,"2026-07-07","Macan",2021,59000,36000,"Financing","Greensboro","NC","Awaiting Delivery"],[69,"2026-07-20","Taycan Turbo S",2025,218000,0,"Wire Transfer","Lincoln","NE","Pending"],[70,"INVALID","Cayenne S",2024,99950,5300,"Debit Card","Jersey City","NJ","Delivered"],[71,"2026-04-08","911 Carrera GTS",2024,121750,5872,"Credit Card","Chandler","AZ","Delivered"],[72,"2026-08-18","718 Boxster GTS",2023,91500,13300,"Lease","Reno","NV","Shipped"],[73,"2026-08-31","Panamera Turbo S",2022,134000,20100,"Wire Transfer","Buffalo","NY","In Transit"],[74,"2026-09-09","Macan GTS",2024,96800,0,"ACH Payment","Durham","NC","Delivered"],[75,"2026-09-17","Taycan 4S",2025,131600,2900,"Wire Transfer","Laredo","TX","Pending Approval"],[76,"2026-09-28","Cayenne E-Hybrid",2023,94300,13100,"Cash","Madison","WI","Delivered"],[77,"2026-10-06","911 Turbo S",2025,242000,1100,"Crypto Payment","Lubbock","TX","Awaiting Pickup"],[78,"2026-10-16","718 Cayman S",2022,82750,22500,"Credit Card","Toledo","OH","Cancelled"],[79,"2026-10-29","Macan Electric",2026,91300,0,"Wire Transfer","Irvine","CA","Delivered"],[80,"2026-11-03","Panamera",2021,79900,44800,"Financing","Garland","TX","Pending"],[81,"INVALID","Cayenne Coupe",2024,111000,6700,"Bank Transfer","Irving","TX","In Transit"],[82,"2026-12-11","911 Targa 4S",2023,156500,4200,"Cash","Chesapeake","VA","Delivered"],[83,"2026-12-24","Taycan",2025,119900,1250,"Lease","Scottsdale","AZ","Pending"],[84,"INVALID","Macan T",2022,73200,18600,"Wire Transfer","Norfolk","VA","Delivered"],[85,"2026-12-28","911 GT3",2024,224000,3000,"Wire Transfer","Boise","ID","Awaiting Delivery"],[86,"2027-01-15","911 Carrera",2024,126900,7200,"Credit Card","Orlando","FL","Delivered"],[87,"2027-01-29","Cayenne",2023,84500,21400,"Bank Transfer","San Jose","CA","Pending"],[88,"2027-02-11","Macan S",2022,69800,26300,"Financing","Tampa","FL","Delivered"],[89,"INVALID","Taycan 4S",2025,132700,0,"Wire Transfer","Denver","CO","In Transit"],[90,"2027-03-05","Panamera",2021,81000,42,"Cash","Austin","TX","Delivered"],[91,"2027-03-18","718 Cayman",2023,78900,17500,"Debit Card","Seattle","WA","Cancelled"],[92,"2027-04-02","911 Turbo S",2026,249300,900,"Wire Transfer","Boston","MA","Awaiting Delivery"],[93,"INVALID","Cayenne Coupe",2024,108750,5530,"Wire Transfer","Phoenix","AZ","Pending Approval"],[94,"INVALID","Macan Electric",2026,92600,0,"Financing","Chicago","IL","Shipped"],[95,"2027-05-12","Taycan Turbo",2025,164000,0,"ACH Payment","Dallas","TX","In Transit"],[96,"2027-05-27","Panamera 4S",2024,119000,13400,"Credit Card","San Francisco","CA","Delivered"],[97,"INVALID","911 GT3",2026,232500,1700,"Wire Transfer","Las Vegas","NV","Pending"],[98,"2027-06-18","Cayenne E-Hybrid",2023,96800,14000,"Lease","Charlotte","NC","Delivered"],[99,"2027-07-03","Macan T",2022,74400,20750,"Cash","Mesa","AZ","Awaiting Pickup"],[100,"2027-07-22","Taycan GTS",2025,148500,5200,"Crypto Payment","Atlanta","GA","Delivered"],[101,"2027-08-08","718 Boxster",2021,71900,29600,"Bank Transfer","Long Beach","CA","Pending"],[102,"INVALID","911 Targa 4",2024,143250,3100,"Financing","Oakland","CA","In Transit"],[103,"2027-09-19","Panamera Turbo",2020,137500,48000,"Wire Transfer","Tulsa","OK","Delivered"],[104,"2027-09-25","Cayenne Turbo GT",2025,204800,3300,"Credit Card","Wichita","KS","Pending"],[105,"2027-10-01","911 Dakar",2024,204800204800,1050,"Lease","New Orleans","LA","Delivered"]];
+const PAYPT = {'Credit Card':'Cartão de crédito','Debit Card':'Cartão de débito','Bank Transfer':'Transferência bancária','Wire Transfer':'Wire transfer','Financing':'Financiamento','Lease':'Leasing','Cash':'À vista','ACH Payment':'ACH','Crypto Payment':'Criptomoeda'};
+const payName = p => PAYPT[p] || p;
+const PRICE_CAP = 1e6; // preços acima disso são tratados como erro de digitação
+const D = RAW.map(r => ({id:r[0], date:r[1]==='INVALID'?null:r[1], model:r[2], year:r[3],
+  price:(r[4]>PRICE_CAP)?null:r[4], badPrice:r[4]>PRICE_CAP, miles:r[5], pay:r[6], city:r[7], state:r[8], deliv:r[9]}));
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nf = new Intl.NumberFormat('pt-BR');
+const money = n => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'USD',notation:'compact',maximumFractionDigits:1}).format(n);
+const moneyFull = n => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n);
+const pct = (a,b) => b ? Math.round(a/b*100) : 0;
+const fmtDate = iso => iso ? iso.split('-').reverse().join('/') : '';
+const family = m => m.startsWith('911') ? '911' : m.startsWith('718') ? '718' : m.split(' ')[0];
+const electrified = m => /Taycan|Electric|E-Hybrid/.test(m);
+
+const f = {model:'', year:'', city:'', pay:'', from:'', to:''};
+const ui = {group:'state', showAll:false, measure:'count'};
+
+function group(arr, keyFn){
+  const m = new Map();
+  for (const d of arr){
+    const k = keyFn(d);
+    let g = m.get(k);
+    if (!g){ g = {key:k, n:0, rev:0, priced:0, items:[]}; m.set(k,g); }
+    g.n++; g.items.push(d);
+    if (d.price!=null){ g.rev += d.price; g.priced++; }
+  }
+  return [...m.values()].sort((a,b) => (b.n-a.n)||(b.rev-a.rev)||String(a.key).localeCompare(String(b.key),'pt'));
+}
+const leaders = gs => gs.length ? gs.filter(g => g.n===gs[0].n) : [];
+const joinPt = a => a.length<=1 ? (a[0]||'') : a.slice(0,-1).join(', ')+' e '+a[a.length-1];
+
+function filtered(){
+  const hasP = f.from || f.to;
+  return D.filter(d =>
+    (!f.model || d.model===f.model) && (!f.year || String(d.year)===f.year) &&
+    (!f.city || d.city===f.city) && (!f.pay || d.pay===f.pay) &&
+    (!hasP || (d.date && (!f.from || d.date>=f.from) && (!f.to || d.date<=f.to))));
+}
+
+/* ---------- filtros ---------- */
+function fillSelect(el, values, allLabel, fmt){
+  el.innerHTML = `<option value="">${allLabel}</option>` + values.map(v => `<option value="${esc(v)}">${esc(fmt?fmt(v):v)}</option>`).join('');
+}
+const uniq = key => [...new Set(D.map(d => d[key]))];
+function initFilters(){
+  fillSelect($('#fModel'), uniq('model').sort((a,b)=>a.localeCompare(b,'pt',{numeric:true})), 'Todos os modelos');
+  fillSelect($('#fYear'), uniq('year').sort(), 'Todos os anos');
+  fillSelect($('#fCity'), uniq('city').sort((a,b)=>a.localeCompare(b,'pt')), 'Todas as cidades');
+  fillSelect($('#fPay'), uniq('pay').sort((a,b)=>payName(a).localeCompare(payName(b),'pt')), 'Todos os métodos', payName);
+  fillSelect($('#xCity'), uniq('city').sort((a,b)=>a.localeCompare(b,'pt')), 'Selecione…');
+  const dates = D.filter(d=>d.date).map(d=>d.date).sort();
+  $('#fFrom').min = $('#fTo').min = dates[0]; $('#fFrom').max = $('#fTo').max = dates[dates.length-1];
+  const years = [...new Set(dates.map(x=>x.slice(0,4)))];
+  $('#yearChips').innerHTML = '<span class="lab" style="margin-right:6px">Período</span>' +
+    `<button class="chip" type="button" data-y="" aria-pressed="true">Tudo</button>` +
+    years.map(y => `<button class="chip" type="button" data-y="${y}" aria-pressed="false">${y}</button>`).join('');
+}
+function bindFilters(){
+  const map = {fModel:'model', fYear:'year', fCity:'city', fPay:'pay', fFrom:'from', fTo:'to'};
+  for (const [id,k] of Object.entries(map)) $('#'+id).addEventListener('change', e => { f[k]=e.target.value; render(); });
+  $('#clear').addEventListener('click', () => { Object.keys(f).forEach(k => f[k]=''); render(); });
+  $('#yearChips').addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if(!b) return;
+    const y = b.dataset.y; f.from = y ? y+'-01-01' : ''; f.to = y ? y+'-12-31' : ''; render();
+  });
+  $('#gState').addEventListener('click', () => { ui.group='state'; ui.showAll=false; render(); });
+  $('#gCity').addEventListener('click', () => { ui.group='city'; ui.showAll=false; render(); });
+  $('#locMore').addEventListener('click', () => { ui.showAll=!ui.showAll; render(); });
+  $('#mCount').addEventListener('click', () => { ui.measure='count'; render(); });
+  $('#mRev').addEventListener('click', () => { ui.measure='rev'; render(); });
+  $('#modelBars').addEventListener('click', e => { const b=e.target.closest('[data-k]'); if(!b) return; f.model = (f.model===b.dataset.k)?'':b.dataset.k; render(); });
+  $('#payBars').addEventListener('click', e => { const b=e.target.closest('[data-k]'); if(!b) return; f.pay = (f.pay===b.dataset.k)?'':b.dataset.k; render(); });
+  $('#xCity').addEventListener('change', renderExplore);
+}
+function syncControls(){
+  $('#fModel').value=f.model; $('#fYear').value=f.year; $('#fCity').value=f.city; $('#fPay').value=f.pay;
+  $('#fFrom').value=f.from; $('#fTo').value=f.to;
+  document.querySelectorAll('#yearChips .chip').forEach(b => {
+    const y=b.dataset.y; const on = y ? (f.from===y+'-01-01' && f.to===y+'-12-31') : (!f.from && !f.to);
+    b.setAttribute('aria-pressed', on);
+  });
+  $('#gState').setAttribute('aria-pressed', ui.group==='state'); $('#gCity').setAttribute('aria-pressed', ui.group==='city');
+  $('#mCount').setAttribute('aria-pressed', ui.measure==='count'); $('#mRev').setAttribute('aria-pressed', ui.measure==='rev');
+}
+
+/* ---------- blocos ---------- */
+function periodText(){
+  if (!f.from && !f.to) return 'em todo o histórico';
+  return `entre ${f.from?fmtDate(f.from):'o início da base'} e ${f.to?fmtDate(f.to):'o fim da base'}`;
+}
+function renderKpis(S){
+  const priced = S.filter(d=>d.price!=null), rev = priced.reduce((a,d)=>a+d.price,0);
+  const gm = group(S,d=>d.model), lm = leaders(gm), gp = group(S,d=>d.pay), lp = leaders(gp);
+  const deliv = S.filter(d=>d.deliv==='Delivered').length;
+  const k = [
+    ['Vendas', nf.format(S.length), `${pct(S.length,D.length)}% das ${nf.format(D.length)} da base`, ''],
+    ['Receita', S.length?money(rev):'—', priced.length<S.length ? `${S.length-priced.length} venda sem preço válido fora da soma` : 'Soma dos preços de venda', ''],
+    ['Ticket médio', priced.length?moneyFull(rev/priced.length):'—', 'Preço médio por carro', ''],
+    ['Modelo líder', lm.length?esc(lm.length===1?lm[0].key:(lm.length<=2?joinPt(lm.map(g=>g.key)):lm.length+' modelos empatados')):'—', lm.length?`${lm[0].n} vendas${lm.length>1?' cada':''} · ${pct(lm[0].n,S.length)}%`:'Sem vendas no recorte', 't'],
+    ['Pagamento líder', lp.length?esc(lp.length<=2?joinPt(lp.map(g=>payName(g.key))):lp.length+' métodos empatados'):'—', lp.length?`${lp[0].n} vendas${lp.length>1?' cada':''} · ${pct(lp[0].n,S.length)}%`:'Sem vendas no recorte', 't']
+  ];
+  $('#kpis').innerHTML = k.map(([l,v,s,c]) => `<div class="kpi"><div class="lab">${l}</div><div class="v num ${c}">${v}</div><div class="s">${s}</div></div>`).join('');
+  $('#heroSub').textContent = `${nf.format(S.length)} vendas no recorte atual, ${periodText()}. Use os filtros acima ou clique nas barras para aprofundar.`;
+  const dts = D.filter(d=>d.date).map(d=>d.date).sort();
+  $('#meta').textContent = `${nf.format(D.length)} vendas · ${dts[0].slice(0,4)}–${dts[dts.length-1].slice(0,4)}`;
+}
+
+function barRows(gs, valFn, labelFn, selKey, max, subFn){
+  return gs.map((g,i) => `<button type="button" class="brow ${(max&&valFn(g)===max)?'lead':''} ${selKey===g.key?'sel':''}" data-k="${esc(g.key)}" title="${esc(labelFn(g))}">
+    <span class="lbl">${esc(labelFn(g))}</span><span class="tr"><span class="fl" style="width:${max?Math.max(2,valFn(g)/max*100):0}%"></span></span>
+    <span class="val num">${subFn(g)}</span></button>`).join('');
+}
+
+function renderModels(S){
+  const gm = group(S,d=>d.model), top = gm.slice(0,10), max = top[0]?top[0].n:0;
+  $('#modelBars').innerHTML = top.length ? barRows(top, g=>g.n, g=>g.key, f.model, max, g=>`${g.n}<small>${pct(g.n,S.length)}%</small>`) : '<div class="empty">Nenhuma venda neste recorte.</div>';
+  $('#leadModels').textContent = gm.length ? `${gm.length} modelos distintos no recorte. ${ui.group==='state'?'Estados':'Cidades'} ordenados por volume de vendas, com os modelos que cada um recebeu.` : '';
+  const key = ui.group==='state' ? d=>d.state : d=>d.city;
+  const gl = group(S,key);
+  $('#thLoc').textContent = ui.group==='state' ? 'Estado' : 'Cidade';
+  const lim = ui.showAll ? gl.length : 8, rows = gl.slice(0,lim);
+  $('#locBody').innerHTML = rows.length ? rows.map((g,i) => {
+    const ms = group(g.items,d=>d.model);
+    const chips = ms.slice(0,3).map((m,j)=>`<span class="mchip ${j===0?'first':''}">${esc(m.key)}${m.n>1?' ×'+m.n:''}</span>`).join('') + (ms.length>3?`<span class="mchip">+${ms.length-3}</span>`:'');
+    return `<tr><td class="rk num">${i+1}</td><td class="loc">${esc(g.key)}</td><td class="r num">${g.n}</td><td>${chips}</td><td class="r num">${g.priced?money(g.rev):'—'}</td></tr>`;
+  }).join('') : '<tr><td colspan="5" class="empty">Nenhuma venda neste recorte.</td></tr>';
+  const more = $('#locMore');
+  more.hidden = gl.length<=8; more.textContent = ui.showAll ? 'Mostrar menos' : `Ver todos (${gl.length})`;
+}
+
+function quarterKey(iso){ const y=iso.slice(0,4), q=Math.ceil(+iso.slice(5,7)/3); return `${y}-Q${q}`; }
+function renderPay(S){
+  const gp = group(S,d=>d.pay);
+  const valFn = ui.measure==='count' ? g=>g.n : g=>g.rev;
+  const sorted = [...gp].sort((a,b)=>valFn(b)-valFn(a)||b.n-a.n);
+  const max = sorted[0]?valFn(sorted[0]):0, totalV = sorted.reduce((a,g)=>a+valFn(g),0);
+  $('#payBars').innerHTML = sorted.length ? barRows(sorted, valFn, g=>payName(g.key), f.pay, max,
+    g => ui.measure==='count' ? `${g.n}<small>${pct(g.n,S.length)}%</small>` : `${money(g.rev)}<small>${pct(g.rev,totalV)}%</small>`) : '<div class="empty">Nenhuma venda neste recorte.</div>';
+  const ld = leaders(gp);
+  if (!ld.length) $('#payHead').textContent = 'Nenhuma venda neste recorte.';
+  else if (ld.length===1) $('#payHead').innerHTML = `<b>${esc(payName(ld[0].key))}</b> foi o método mais usado ${periodText()}: ${ld[0].n} vendas, ${pct(ld[0].n,S.length)}% do total.`;
+  else $('#payHead').innerHTML = `<b>${esc(joinPt(ld.map(g=>payName(g.key))))}</b> empatam como método mais usado ${periodText()}, com ${ld[0].n} vendas cada.`;
+
+  const dated = S.filter(d=>d.date), undated = S.length-dated.length;
+  const top5 = gp.slice(0,5).map(g=>g.key), rest = gp.length>5;
+  const names = [...top5, ...(rest?['__o']:[])]; const colors = ['--s1','--s2','--s3','--s4','--s5','--s6'];
+  const bq = new Map();
+  for (const d of dated){ const q=quarterKey(d.date); if(!bq.has(q)) bq.set(q,{}); const o=bq.get(q); const k=top5.includes(d.pay)?d.pay:'__o'; o[k]=(o[k]||0)+1; }
+  const qs = [...bq.keys()].sort();
+  const totals = qs.map(q=>Object.values(bq.get(q)).reduce((a,b)=>a+b,0)), qmax = Math.max(1,...totals), H = 170;
+  $('#stack').innerHTML = qs.length ? qs.map((q,i)=>{
+    const o=bq.get(q);
+    const segs = names.filter(n=>o[n]).map(n=>`<div class="seg1" style="height:${o[n]/qmax*H}px;background:var(${colors[names.indexOf(n)]})" title="${esc(q)} · ${esc(n==='__o'?'Outros':payName(n))}: ${o[n]}"></div>`).join('');
+    return `<div class="qcol"><div class="tot num">${totals[i]}</div>${segs}</div>`;
+  }).join('') : '<div class="empty">Sem vendas com data válida neste recorte.</div>';
+  $('#swi').style.minWidth = Math.max(0, qs.length*30)+'px';
+  $('#qlabels').innerHTML = qs.map(q=>`<span>T${q.slice(-1)}/${q.slice(2,4)}</span>`).join('');
+  $('#legend').innerHTML = qs.length ? names.map(n=>`<span><i style="background:var(${colors[names.indexOf(n)]})"></i>${n==='__o'?'Outros':esc(payName(n))}</span>`).join('') : '';
+  $('#payNote').textContent = undated ? `${undated} ${undated===1?'venda':'vendas'} sem data válida ${undated===1?'não entra':'não entram'} no gráfico por trimestre${(f.from||f.to)?' nem na contagem do período':''}.` : '';
+}
+
+function renderInsights(S){
+  const el = $('#insights-grid');
+  if (!S.length){ el.innerHTML = '<div class="empty">Nenhuma venda neste recorte. Ajuste os filtros.</div>'; return; }
+  const out = [];
+  const gm = group(S,d=>d.model), lm = leaders(gm);
+  out.push(['Modelo mais popular', lm.length===1 ? `<b>${esc(lm[0].key)}</b> lidera com ${lm[0].n} vendas` : `<b>${lm.length} modelos</b> empatam na liderança, com ${lm[0].n} vendas cada`,
+    lm.length===1 ? `Representa ${pct(lm[0].n,S.length)}% das vendas. Em ${nf.format(S.length)} vendas, a base é pulverizada e a vantagem do líder é pequena.` : `${esc(lm.length<=4?joinPt(lm.map(g=>g.key)):lm.slice(0,3).map(g=>g.key).join(', ')+' e mais '+(lm.length-3))}. Nenhum modelo se destaca: cada um responde por ${pct(lm[0].n,S.length)}% das vendas.`]);
+  const gf = group(S,d=>family(d.model)), lf = gf[0], tf = gf.filter(g=>g.n===lf.n);
+  out.push(['Família líder', `A linha <b>${esc(lf.key)}</b>${tf.length>1?' (empatada)':''} concentra ${pct(lf.n,S.length)}% das vendas`,
+    `${lf.n} vendas em ${group(lf.items,d=>d.model).length} versões diferentes${lf.priced?`, com ticket médio de ${moneyFull(lf.rev/lf.priced)}`:''}.`]);
+  const gs = group(S,d=>d.state), ls = gs[0], lsm = group(ls.items,d=>d.model)[0];
+  out.push(['Praça mais ativa', `<b>${esc(ls.key)}</b> concentra ${pct(ls.n,S.length)}% das vendas`,
+    `${ls.n} vendas em ${group(ls.items,d=>d.city).length} cidades. O modelo mais vendido lá é o ${esc(lsm.key)}${lsm.n>1?` (${lsm.n} unidades)`:''}.`]);
+  const el2 = S.filter(d=>electrified(d.model)), pe = pct(el2.length,S.length), ep = el2.filter(d=>d.price!=null), np = S.filter(d=>!electrified(d.model)&&d.price!=null);
+  const avg = a => a.reduce((s,d)=>s+d.price,0)/a.length;
+  out.push(['Eletrificados', `<b>${pe}%</b> das vendas são Taycan, Macan Electric ou versões E-Hybrid`,
+    el2.length && ep.length && np.length ? `Ticket médio de ${moneyFull(avg(ep))} contra ${moneyFull(avg(np))} nos demais.` : 'Sem base suficiente para comparar o ticket.']);
+  const fam = gf.filter(g=>g.priced>0).map(g=>({k:g.key,a:g.rev/g.priced,n:g.n})).sort((a,b)=>b.a-a.a);
+  out.push(['Faixa de preço', fam.length>1 ? `<b>${esc(fam[0].k)}</b> tem o maior ticket médio: ${money(fam[0].a)}` : (fam[0]?`Ticket médio de <b>${money(fam[0].a)}</b>`:'Sem preço válido no recorte'),
+    fam.length>1 ? `O menor está em ${esc(fam[fam.length-1].k)}, com ${money(fam[fam.length-1].a)}. Diferença de ${(fam[0].a/fam[fam.length-1].a).toFixed(1).replace('.',',')}×.` : 'Amplie o recorte para comparar famílias.']);
+  const gc = group(S,d=>d.city), single = gc.filter(g=>g.n===1).length;
+  out.push(['Leitura por cidade', `<b>${single} de ${gc.length}</b> cidades têm apenas 1 venda`,
+    'Com tão poucas vendas por cidade, o modelo “mais popular” de uma cidade é indicativo. Estados e famílias dão uma leitura mais firme.']);
+  el.innerHTML = out.map(([k,t,p]) => `<div class="in"><div class="k">${k}</div><div class="t">${t}</div><p>${p}</p></div>`).join('');
+}
+
+function renderExplore(){
+  const c = $('#xCity').value, out = $('#xOut');
+  if (!c){ out.innerHTML = '<div class="empty">Nenhuma cidade selecionada.</div>'; return; }
+  const sales = D.filter(d=>d.city===c), st = sales[0].state, inState = D.filter(d=>d.state===st);
+  const gm = group(inState,d=>d.model)[0], gn = group(D,d=>d.model)[0];
+  const rows = sales.map(d=>`<div class="sale"><div class="m">${esc(d.model)} <span class="d">· modelo ${d.year}</span></div><div class="p num">${d.price!=null?moneyFull(d.price):'—'}</div><div class="d">${esc(payName(d.pay))} · ${d.miles===0?'zero km':nf.format(d.miles)+' milhas'} · ${d.date?fmtDate(d.date):'data inválida'}</div><div></div></div>`).join('');
+  out.innerHTML = `<div class="lab" style="margin-bottom:6px">${esc(c)}, ${esc(st)} · ${sales.length} ${sales.length===1?'venda':'vendas'}</div>${rows}
+    <div class="ctx">No estado ${esc(st)} (${inState.length} vendas), o modelo mais vendido é o <b>${esc(gm.key)}</b> (${gm.n}). No total da base, o líder é o <b>${esc(gn.key)}</b> (${gn.n}).</div>`;
+}
+
+function renderQuality(){
+  const inv = D.filter(d=>!d.date).length, bad = D.filter(d=>d.badPrice), today = new Date().toISOString().slice(0,10);
+  const fut = D.filter(d=>d.date && d.date>today).length;
+  const parts = [`<b>Qualidade dos dados:</b> ${inv} vendas sem data válida (INVALID) ficam fora de qualquer filtro de período.`];
+  if (fut) parts.push(`${fut} vendas têm data posterior a hoje e foram mantidas como estão na base.`);
+  if (bad.length) parts.push(`<span class="warn">A venda ${bad.map(d=>d.id).join(', ')} traz preço de ${nf.format(bad[0].price===null?(RAW.find(r=>r[0]===bad[0].id)[4]):0)} dólares, fora de qualquer padrão. Ela conta como venda, mas fica fora de receita e ticket médio.</span>`);
+  $('#quality').innerHTML = parts.join(' ');
+}
+
+function render(){
+  syncControls();
+  const S = filtered();
+  renderKpis(S); renderModels(S); renderPay(S); renderInsights(S);
+}
+initFilters(); bindFilters(); renderQuality(); renderExplore(); render();
+</script>
+
+</body></html>
