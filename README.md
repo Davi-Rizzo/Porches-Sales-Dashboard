@@ -90,7 +90,7 @@ Somente dados comerciais necessários às análises devem ser incorporados ao pr
 
 **Acesso à aplicação:**
 
-[https://davi-rizzo.github.io/Porsches-Sales-Dashboard/](https://davi-rizzo.github.io/Porsches-Sales-Dashboard/)
+[https://davi-rizzo.github.io/Porsches-Sales-Dashboard/]((https://davi-rizzo.github.io/Porches-Sales-Dashboard/))
 
 **Repositório do projeto:**
 
