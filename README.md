@@ -14,13 +14,6 @@ Dashboard interativa para análise de vendas de veículos Porsche
 - Insights de comportamento de compra por região
 - Evolução das vendas ao longo do tempo
 
-## Tecnologias
-
-- HTML5
-- CSS3
-- JavaScript
-- Chart.js
-
 ## Publicação
 
 Projeto hospedado gratuitamente através do GitHub Pages.
