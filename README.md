@@ -29,4 +29,4 @@ Projeto hospedado gratuitamente através do GitHub Pages.
 
 Após habilitar o GitHub Pages, o dashboard estará disponível em:
 
-`https://github.com/Davi-Rizzo/Porches-Sales-Dashboard/settings/pages`
+`https://davi-rizzo.github.io/Porches-Sales-Dashboard/`
